@@ -1,0 +1,22 @@
+{
+  "name": "framer-nuumx-nodejs-webhook",
+  "version": "1.0.0",
+  "description": "Secure Node.js and Express webhook that sends Framer contact form submissions to Nuumx CRM.",
+  "private": true,
+  "type": "module",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "generate-secret": "node scripts/generate-secret.js",
+    "check": "node --check src/server.js && node --check scripts/generate-secret.js && node --check scripts/test-webhook.js",
+    "test-webhook": "node scripts/test-webhook.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "express": "^5.0.0"
+  }
+}
