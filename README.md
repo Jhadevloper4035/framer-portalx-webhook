@@ -43,19 +43,7 @@ From this project folder:
 npm install
 ```
 
-## 2. Create the environment file
-
-macOS/Linux:
-
-```bash
-cp .env.example .env
-```
-
-Windows PowerShell:
-
-```powershell
-Copy-Item .env.example .env
-```
+## 2. Configure `.env`
 
 Generate a secure Framer webhook secret:
 
@@ -63,13 +51,14 @@ Generate a secure Framer webhook secret:
 npm run generate-secret
 ```
 
-Open `.env` and configure it:
+Open `.env` and configure it. Keep this file private and do not commit it:
 
 ```env
 PORT=3000
 NODE_ENV=development
 
 FRAMER_WEBHOOK_SECRET=PASTE_THE_GENERATED_SECRET_HERE
+FRAMER_ALLOWED_ORIGINS=https://portalx.life,https://www.portalx.life,https://minimal-start-379923--connect-form-webhook-cvs96zyzh.framer.app
 NUUMX_AUTH_TOKEN=PASTE_YOUR_NEW_CRM_TOKEN_HERE
 
 NUUMX_CRM_URL=https://crx.nuumx.ai/api/leads
@@ -81,6 +70,8 @@ CRM_TIMEOUT_MS=15000
 ```
 
 The `FRAMER_WEBHOOK_SECRET` must be at least 32 characters. You will paste the exact same value into Framer.
+
+`FRAMER_ALLOWED_ORIGINS` allows browser form submissions from your Framer site. Add any future custom domain here as a comma-separated `https://...` origin.
 
 `NUUMX_AUTH_TOKEN` becomes the CRM `authtoken` header. `NUUMX_COOKIE` is optional; only set it if the CRM genuinely requires the full Cookie header. Session cookies can expire, so a permanent API token is preferred.
 
@@ -189,10 +180,11 @@ This is a plain Express app. Vercel detects `src/server.js`, so no Next.js proje
 1. Push this current project to a private GitHub repository.
 2. Open Vercel and choose **Add New → Project**.
 3. Import the GitHub repository.
-4. Set these Environment Variables in Vercel:
+4. Copy the same values from your local `.env` into Vercel Environment Variables:
 
 ```text
 FRAMER_WEBHOOK_SECRET=PASTE_THE_GENERATED_SECRET_HERE
+FRAMER_ALLOWED_ORIGINS=https://portalx.life,https://www.portalx.life,https://minimal-start-379923--connect-form-webhook-cvs96zyzh.framer.app
 NUUMX_CRM_URL=https://crx.nuumx.ai/api/leads
 NUUMX_AUTH_TOKEN=PASTE_YOUR_NEW_CRM_TOKEN_HERE
 CRM_STATUS=2
@@ -230,6 +222,7 @@ npm i -g vercel
 vercel login
 vercel
 vercel env add FRAMER_WEBHOOK_SECRET production
+vercel env add FRAMER_ALLOWED_ORIGINS production
 vercel env add NUUMX_CRM_URL production
 vercel env add NUUMX_AUTH_TOKEN production
 vercel env add CRM_STATUS production

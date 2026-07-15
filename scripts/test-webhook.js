@@ -11,6 +11,7 @@ const secret =
 console.warn(
     "Warning: this may create a real test lead in the configured CRM."
 )
+console.log("Webhook URL:", webhookUrl)
 
 if (!secret || secret.length < 32) {
     console.error(
@@ -59,11 +60,19 @@ try {
         process.exitCode = 1
     }
 } catch (error) {
+    const cause = error?.cause
+
     console.error(
         "Webhook test failed:",
         error instanceof Error
             ? error.message
             : String(error)
     )
+    if (cause) {
+        console.error(
+            "Cause:",
+            cause.code || cause.message || String(cause)
+        )
+    }
     process.exitCode = 1
 }

@@ -13,6 +13,11 @@ const CRM_URL =
     process.env.NUUMX_CRM_URL?.trim() ||
     "https://crx.nuumx.ai/api/leads"
 const DEFAULT_CRM_TAGS = "Parternership"
+const DEFAULT_ALLOWED_ORIGINS = [
+    "https://portalx.life",
+    "https://www.portalx.life",
+    "https://minimal-start-379923--connect-form-webhook-cvs96zyzh.framer.app",
+]
 
 function toPositiveInteger(value, fallback) {
     const parsed = Number.parseInt(value ?? "", 10)
@@ -47,6 +52,52 @@ function getHeaderValue(value) {
     }
 
     return typeof value === "string" ? value : ""
+}
+
+function getAllowedOrigins() {
+    const configured =
+        process.env.FRAMER_ALLOWED_ORIGINS
+            ?.split(",")
+            .map((origin) => origin.trim())
+            .filter(Boolean) || []
+
+    return configured.length
+        ? configured
+        : DEFAULT_ALLOWED_ORIGINS
+}
+
+function setWebhookCors(request, response) {
+    const origin = getHeaderValue(
+        request.headers.origin
+    )
+
+    if (!origin) {
+        return true
+    }
+
+    if (!getAllowedOrigins().includes(origin)) {
+        return false
+    }
+
+    response.setHeader(
+        "Access-Control-Allow-Origin",
+        origin
+    )
+    response.setHeader("Vary", "Origin")
+    response.setHeader(
+        "Access-Control-Allow-Methods",
+        "POST, OPTIONS"
+    )
+    response.setHeader(
+        "Access-Control-Allow-Headers",
+        "Content-Type, Framer-Signature, Framer-Webhook-Submission-Id"
+    )
+    response.setHeader(
+        "Access-Control-Max-Age",
+        "86400"
+    )
+
+    return true
 }
 
 function verifyFramerSignature({
@@ -164,6 +215,17 @@ app.get("/health", (_request, response) => {
         })
 })
 
+app.options("/api/framer-lead", (request, response) => {
+    if (!setWebhookCors(request, response)) {
+        return response.status(403).json({
+            success: false,
+            message: "Origin not allowed",
+        })
+    }
+
+    return response.status(204).end()
+})
+
 /*
  * Framer signs the exact raw JSON bytes, so this route must use
  * express.raw() before any JSON parser is applied.
@@ -175,6 +237,13 @@ app.post(
         limit: "100kb",
     }),
     async (request, response) => {
+        if (!setWebhookCors(request, response)) {
+            return response.status(403).json({
+                success: false,
+                message: "Origin not allowed",
+            })
+        }
+
         const configurationErrors =
             validateConfiguration()
 
@@ -412,7 +481,8 @@ app.post(
     }
 )
 
-app.all("/api/framer-lead", (_request, response) => {
+app.all("/api/framer-lead", (request, response) => {
+    setWebhookCors(request, response)
     response.setHeader("Allow", "POST")
     return response.status(405).json({
         success: false,
