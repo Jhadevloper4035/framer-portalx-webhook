@@ -58,6 +58,7 @@ PORT=3000
 NODE_ENV=development
 
 FRAMER_WEBHOOK_SECRET=PASTE_THE_GENERATED_SECRET_HERE
+FRAMER_REQUIRE_SIGNATURE=false
 FRAMER_ALLOWED_ORIGINS=https://portalx.life,https://www.portalx.life,https://minimal-start-379923--connect-form-webhook-cvs96zyzh.framer.app
 NUUMX_AUTH_TOKEN=PASTE_YOUR_NEW_CRM_TOKEN_HERE
 
@@ -70,6 +71,8 @@ CRM_TIMEOUT_MS=15000
 ```
 
 The `FRAMER_WEBHOOK_SECRET` must be at least 32 characters. You will paste the exact same value into Framer.
+
+Set `FRAMER_REQUIRE_SIGNATURE=false` for Framer browser form submissions. Browser forms do not send `Framer-Signature` headers.
 
 `FRAMER_ALLOWED_ORIGINS` allows browser form submissions from your Framer site. Add any future custom domain here as a comma-separated `https://...` origin.
 
@@ -184,6 +187,7 @@ This is a plain Express app. Vercel detects `src/server.js`, so no Next.js proje
 
 ```text
 FRAMER_WEBHOOK_SECRET=PASTE_THE_GENERATED_SECRET_HERE
+FRAMER_REQUIRE_SIGNATURE=false
 FRAMER_ALLOWED_ORIGINS=https://portalx.life,https://www.portalx.life,https://minimal-start-379923--connect-form-webhook-cvs96zyzh.framer.app
 NUUMX_CRM_URL=https://crx.nuumx.ai/api/leads
 NUUMX_AUTH_TOKEN=PASTE_YOUR_NEW_CRM_TOKEN_HERE
@@ -222,6 +226,7 @@ npm i -g vercel
 vercel login
 vercel
 vercel env add FRAMER_WEBHOOK_SECRET production
+vercel env add FRAMER_REQUIRE_SIGNATURE production
 vercel env add FRAMER_ALLOWED_ORIGINS production
 vercel env add NUUMX_CRM_URL production
 vercel env add NUUMX_AUTH_TOKEN production
@@ -276,10 +281,9 @@ description
 https://YOUR-VERCEL-DOMAIN/api/framer-lead
 ```
 
-7. Enable webhook signature verification.
-8. Paste the same value used for `FRAMER_WEBHOOK_SECRET` in Vercel.
-9. Save.
-10. Publish the Framer website.
+7. Leave webhook signature verification off if this is a browser form action.
+8. Save.
+9. Publish the Framer website.
 
 Do not add `status`, `source`, `assigned`, `tags`, `authtoken`, or `Cookie` fields in Framer. This server sends those private values from Vercel environment variables.
 

@@ -18,6 +18,8 @@ const DEFAULT_ALLOWED_ORIGINS = [
     "https://www.portalx.life",
     "https://minimal-start-379923--connect-form-webhook-cvs96zyzh.framer.app",
 ]
+const REQUIRE_FRAMER_SIGNATURE =
+    process.env.FRAMER_REQUIRE_SIGNATURE !== "false"
 
 function toPositiveInteger(value, fallback) {
     const parsed = Number.parseInt(value ?? "", 10)
@@ -152,9 +154,10 @@ function validateConfiguration() {
     }
 
     if (
-        !process.env.FRAMER_WEBHOOK_SECRET ||
-        process.env.FRAMER_WEBHOOK_SECRET.trim().length <
-            32
+        REQUIRE_FRAMER_SIGNATURE &&
+        (!process.env.FRAMER_WEBHOOK_SECRET ||
+            process.env.FRAMER_WEBHOOK_SECRET.trim()
+                .length < 32)
     ) {
         errors.push(
             "FRAMER_WEBHOOK_SECRET must contain at least 32 characters"
@@ -284,7 +287,10 @@ app.post(
                 submissionId,
             })
 
-        if (!signatureIsValid) {
+        if (
+            REQUIRE_FRAMER_SIGNATURE &&
+            !signatureIsValid
+        ) {
             return response.status(401).json({
                 success: false,
                 message:
